@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { AddBox } from "./add-box";
 import { ItemCard } from "./item-card";
 import { SettingsBox } from "./settings-box";
+import { Resurfaced } from "./resurfaced";
 
 export const dynamic = "force-dynamic";
 
@@ -47,11 +48,19 @@ export default async function Home({
 
   return (
     <main>
-      <header className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight">Interest Dump</h1>
-        <p className="mt-1 text-sm text-ink-soft dark:text-slate-400">
-          Save anything — it gets read, summarized, and tagged.
-        </p>
+      <header className="mb-6 flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Interest Dump</h1>
+          <p className="mt-1 text-sm text-ink-soft dark:text-slate-400">
+            Save anything — it gets read, summarized, and tagged.
+          </p>
+        </div>
+        <Link
+          href="/insights"
+          className="shrink-0 rounded-full bg-accent-soft px-3 py-1.5 text-xs font-medium text-accent hover:bg-accent/10 dark:bg-slate-800 dark:text-slate-200"
+        >
+          Insights →
+        </Link>
       </header>
 
       {captured && (
@@ -67,6 +76,8 @@ export default async function Home({
       <AddBox />
 
       <SettingsBox startOpen={Boolean(needs_token)} />
+
+      <Resurfaced />
 
       <form className="mb-4">
         <input

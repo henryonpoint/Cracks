@@ -23,6 +23,21 @@ export function isAuthorized(req: NextRequest): boolean {
   return false;
 }
 
+/**
+ * Auth for background/cron endpoints (process, insights, resurface). Accepts the
+ * Vercel-injected CRON_SECRET or the CAPTURE_TOKEN (so you can trigger by hand).
+ */
+export function isBackgroundAuthorized(req: NextRequest): boolean {
+  const auth = req.headers.get("authorization");
+  if (!auth?.startsWith("Bearer ")) return false;
+  const presented = auth.slice(7);
+  const cronSecret = process.env.CRON_SECRET;
+  const captureToken = process.env.CAPTURE_TOKEN;
+  if (cronSecret && safeEqual(presented, cronSecret)) return true;
+  if (captureToken && safeEqual(presented, captureToken)) return true;
+  return false;
+}
+
 // Constant-time-ish comparison to avoid trivial timing leaks.
 function safeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false;

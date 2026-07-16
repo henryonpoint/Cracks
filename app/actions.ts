@@ -35,3 +35,14 @@ export async function addItem(formData: FormData) {
     }
   });
 }
+
+// Dismiss a resurfaced item so it stops bubbling up.
+export async function dismissResurfacing(formData: FormData) {
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  await prisma.resurfacing.update({
+    where: { id },
+    data: { dismissed: true, shownAt: new Date() },
+  });
+  revalidatePath("/");
+}

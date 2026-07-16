@@ -38,8 +38,9 @@ model Item {
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
 
-  summary Summary?
-  topics  ItemTopic[]
+  summary      Summary?
+  topics       ItemTopic[]
+  resurfacings Resurfacing[]
 
   @@index([status])
   @@index([createdAt])
@@ -75,25 +76,45 @@ model ItemTopic {
   @@index([topicId])
 }
 
-// ---- Reserved for later iterations (created now, populated later) ----
-
-// A rolling model of your interests: one row per theme with a weight that
-// grows as you save related things. Fed by Topic frequency + recency.
+// A rolling model of your interests: one row per theme with a recency-weighted
+// score computed from how often (and how recently) you save related things.
 model InterestProfile {
   id        String   @id @default(cuid())
-  theme     String   @unique
-  weight    Float    @default(0)
+  theme     String   @unique // matches a Topic.name
+  slug      String   @unique // matches a Topic.slug
+  weight    Float    @default(0) // recency-decayed frequency
+  itemCount Int      @default(0)
+  lastSeen  DateTime?
   updatedAt DateTime @updatedAt
+
+  @@index([weight])
+}
+
+// A Claude-synthesized narrative over your interests ("what you're into lately").
+// Append-only; the newest row is what the /insights page shows.
+model Insight {
+  id        String   @id @default(cuid())
+  kind      String   @default("digest")
+  narrative String   // prose summary of your current interests
+  themes    String[] // headline themes, most salient first
+  emerging  String[] // themes trending up
+  fading    String[] // themes trending down
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
 }
 
 // Scheduled "bubble-ups" — resurface a past item at a chosen time.
 model Resurfacing {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   itemId    String
+  item      Item      @relation(fields: [itemId], references: [id], onDelete: Cascade)
   dueAt     DateTime
   reason    String?
   shownAt   DateTime?
-  createdAt DateTime @default(now())
+  dismissed Boolean   @default(false)
+  createdAt DateTime  @default(now())
 
   @@index([dueAt])
+  @@index([itemId])
 }

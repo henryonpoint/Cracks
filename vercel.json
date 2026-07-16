@@ -4,6 +4,14 @@
     {
       "path": "/api/process",
       "schedule": "*/10 * * * *"
+    },
+    {
+      "path": "/api/insights",
+      "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/resurface",
+      "schedule": "0 8 * * *"
     }
   ]
 }

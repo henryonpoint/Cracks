@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { processItem } from "@/lib/process";
+import { isBackgroundAuthorized } from "@/lib/auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,7 +16,7 @@ export const maxDuration = 60;
  * Authorization: Bearer as capture, so you can trigger it by hand.
  */
 export async function GET(req: NextRequest) {
-  if (!authorized(req)) {
+  if (!isBackgroundAuthorized(req)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
 
@@ -40,13 +41,4 @@ export async function GET(req: NextRequest) {
   }
 
   return NextResponse.json({ processed: results.length, results });
-}
-
-function authorized(req: NextRequest): boolean {
-  const auth = req.headers.get("authorization");
-  const cronSecret = process.env.CRON_SECRET;
-  const captureToken = process.env.CAPTURE_TOKEN;
-  if (cronSecret && auth === `Bearer ${cronSecret}`) return true;
-  if (captureToken && auth === `Bearer ${captureToken}`) return true;
-  return false;
 }
