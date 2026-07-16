@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Interest Dump">
+  <rect width="512" height="512" fill="#5b6cff"/>
+  <path d="M180 196c0-11 9-20 20-20h112c11 0 20 9 20 20s-9 20-20 20H200c-11 0-20-9-20-20Z" fill="#fff"/>
+  <path d="M180 266c0-11 9-20 20-20h112c11 0 20 9 20 20s-9 20-20 20H200c-11 0-20-9-20-20Z" fill="#fff" opacity="0.8"/>
+  <path d="M180 336c0-11 9-20 20-20h68c11 0 20 9 20 20s-9 20-20 20h-68c-11 0-20-9-20-20Z" fill="#fff" opacity="0.6"/>
+</svg>

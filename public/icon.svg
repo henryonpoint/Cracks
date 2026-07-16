@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Interest Dump">
+  <rect width="512" height="512" rx="96" fill="#5b6cff"/>
+  <path d="M160 176c0-13 11-24 24-24h144c13 0 24 11 24 24v0c0 13-11 24-24 24H184c-13 0-24-11-24-24Z" fill="#fff"/>
+  <path d="M160 256c0-13 11-24 24-24h144c13 0 24 11 24 24v0c0 13-11 24-24 24H184c-13 0-24-11-24-24Z" fill="#fff" opacity="0.8"/>
+  <path d="M160 336c0-13 11-24 24-24h88c13 0 24 11 24 24v0c0 13-11 24-24 24h-88c-13 0-24-11-24-24Z" fill="#fff" opacity="0.6"/>
+</svg>
