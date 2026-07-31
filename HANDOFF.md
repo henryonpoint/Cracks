@@ -4,7 +4,7 @@
 > Typecheck + production build verified. **Not yet deployed** — needs a Postgres URL and an
 > Anthropic API key (see [Deployment](#8-deployment-runbook)).
 >
-> **Last updated**: 2026-06-16
+> **Last updated**: 2026-07-31
 
 ---
 
@@ -25,8 +25,11 @@ into a todo app just to park them. The todo app stores them but understands noth
 **Explicitly deferred** (owner deprioritized for v1): proactive discovery of new related
 sources via web search; multi-user auth; email digests.
 
-**Owner's platforms**: iPhone *and* Android phone + laptop → hence three capture paths
-(iOS Shortcut, Android PWA share target, in-app add box), all hitting one backend.
+**Owner's platforms (priority order):** **iOS** (primary phone) and **Chrome desktop**
+(primary computer). Android is supported as a secondary path via the PWA share target,
+but is not a design priority. Capture paths: iOS Shortcut, in-app add box (desktop),
+optional Android PWA share — all hitting one backend. This is a web app, not a native
+iOS binary; on iPhone, Share Sheet capture is the Apple Shortcut.
 
 ---
 
@@ -41,7 +44,7 @@ sources via web search; multi-user auth; email digests.
 | Content extraction | `jsdom` + `@mozilla/readability` | OG/meta fallback for non-article pages |
 | Styling | Tailwind CSS | Light + dark |
 | Hosting target | Vercel (+ Neon/any Postgres) | `vercel.json` defines 3 cron jobs |
-| PWA | `manifest.webmanifest` + hand-rolled `sw.js` | Share target only; no offline caching |
+| PWA | `manifest.webmanifest` + hand-rolled `sw.js` | Optional Android share target only; no offline caching. iOS uses Shortcut instead. |
 
 Model choice: `claude-opus-4-8` is set in one place (`lib/claude.ts` `MODEL` const).
 Swap to `claude-sonnet-4-6` there if summarization volume makes cost a concern.
@@ -53,16 +56,16 @@ Swap to `claude-sonnet-4-6` there if summarization volume makes cost a concern.
 ```
 app/
   page.tsx                Feed: add box, resurfaced strip, topic filter, item cards
-  actions.ts              Server actions: addItem (laptop capture), dismissResurfacing
-  add-box.tsx             Paste-anything input (client component)
+  actions.ts              Server actions: addItem (desktop capture), dismissResurfacing
+  add-box.tsx             Paste-anything input (client component; Chrome desktop primary)
   item-card.tsx           One feed row: title, summary, tags, status badge
   resurfaced.tsx          "Worth another look" strip (server component)
-  settings-box.tsx        Stores CAPTURE_TOKEN in IndexedDB for the service worker
+  settings-box.tsx        Stores CAPTURE_TOKEN in IndexedDB for the (optional Android) SW
   register-sw.tsx         Registers /sw.js on load
   insights/page.tsx       Narrative digest + weighted theme bars
   item/[id]/page.tsx      Item detail: full summary, key points, why, raw text
-  share-target/route.ts   Fallback when the SW isn't active yet (first-ever share)
-  api/capture/route.ts    POST — the single capture endpoint (phones hit this)
+  share-target/route.ts   Fallback when the SW isn't active yet (first Android share)
+  api/capture/route.ts    POST — the single capture endpoint (iOS Shortcut + share target)
   api/process/route.ts    GET  — retry worker for pending/failed items (cron 10 min)
   api/insights/route.ts   GET  — rebuild profile + synthesize digest (cron 6 h)
   api/resurface/route.ts  GET  — schedule bubble-ups (cron daily)
@@ -77,9 +80,9 @@ lib/
   resurface.ts            scheduleResurfacings() + getDueResurfacings()
 prisma/schema.prisma      Full data model (7 models)
 public/
-  sw.js                   Service worker: intercepts POST /share-target → /api/capture
-  manifest.webmanifest    PWA manifest incl. share_target declaration
-shortcuts/README.md       Step-by-step iOS Shortcut build instructions
+  sw.js                   Service worker: optional Android share-target bridge → /api/capture
+  manifest.webmanifest    PWA manifest incl. share_target (Android/Chrome only)
+shortcuts/README.md       Step-by-step iOS Shortcut build instructions (primary phone path)
 vercel.json               3 cron schedules
 ```
 
@@ -156,20 +159,22 @@ Runs `scheduleResurfacings()` (see §7). Returns `{ok, scheduled}`.
 
 ### Server actions (not HTTP endpoints)
 
-- `addItem(formData)` — laptop capture from the feed's add box. Runs server-side, so
-  the browser never sees the token. Same URL-vs-note logic as capture.
+- `addItem(formData)` — desktop capture from the feed's add box (Chrome desktop primary).
+  Runs server-side, so the browser never sees the token. Same URL-vs-note logic as capture.
 - `dismissResurfacing(formData)` — sets `dismissed=true, shownAt=now`.
 
 ---
 
 ## 6. Capture paths (how things get in)
 
-| Path | Mechanism |
-|---|---|
-| **Android** | Install the PWA (Chrome → Add to Home screen). `manifest.webmanifest` declares a `share_target` (`POST /share-target`, form-encoded). `public/sw.js` intercepts that POST, reads the capture token from IndexedDB (`cracks` DB, `kv` store, key `captureToken` — put there by the in-app Settings box), and forwards to `/api/capture` with the Bearer header. Redirects to `/?captured=1` or `/?needs_token=1`. |
-| **iOS** | PWAs can't be share targets on iOS. `shortcuts/README.md` walks through a 2-minute Apple Shortcut: Share Sheet input → `Get Contents of URL` POSTing JSON `{url: input}` to `/api/capture` with the Bearer header. |
-| **Laptop** | Paste anything (URL or free text) into the add box on `/`. Server action; no token in the browser. |
-| **Fallback** | `app/share-target/route.ts` only runs if the SW isn't controlling the page yet (first share right after install) — it can't authenticate, so it redirects into the app so the SW registers; user re-shares. |
+Primary platforms first; Android is optional secondary support.
+
+| Path | Priority | Mechanism |
+|---|---|---|
+| **iOS** | Primary phone | PWAs can't be share targets on iOS. `shortcuts/README.md` walks through a 2-minute Apple Shortcut: Share Sheet input → `Get Contents of URL` POSTing JSON `{url: input}` to `/api/capture` with the Bearer header. Shows up in Share Sheet from Safari, News, Mail, etc. |
+| **Chrome desktop** | Primary computer | Paste anything (URL or free text) into the add box on `/`. Server action; no token in the browser. |
+| **Android** | Secondary | Install the PWA (Chrome → Add to Home screen). `manifest.webmanifest` declares a `share_target` (`POST /share-target`, form-encoded). `public/sw.js` intercepts that POST, reads the capture token from IndexedDB (`cracks` DB, `kv` store, key `captureToken` — put there by the in-app Settings box), and forwards to `/api/capture` with the Bearer header. Redirects to `/?captured=1` or `/?needs_token=1`. |
+| **Fallback** | Android only | `app/share-target/route.ts` only runs if the SW isn't controlling the page yet (first share right after install) — it can't authenticate, so it redirects into the app so the SW registers; user re-shares. |
 
 Feed query params the UI understands: `?captured=1` (success toast), `?needs_token=1`
 (opens Settings box), `?share_error=1` (share failed hint), `?topic=<slug>` (filter feed).
@@ -256,9 +261,11 @@ in `lib/interests.ts`.
 3. Create the schema once: `DATABASE_URL=... npx prisma db push` from any machine.
 4. Deploy. `vercel.json` registers the crons:
    `/api/process` `*/10 * * * *` · `/api/insights` `0 */6 * * *` · `/api/resurface` `0 8 * * *`.
-5. Phone setup: Android → open site, Settings box → paste `CAPTURE_TOKEN` (stored in
-   IndexedDB for the SW), then Add to Home screen. iOS → build the Shortcut per
-   `shortcuts/README.md`.
+5. Device setup (priority order):
+   - **iOS (primary):** build the Shortcut per `shortcuts/README.md`.
+   - **Chrome desktop (primary):** open the site and use the add box — no token in the browser.
+   - **Android (optional):** open site, Settings box → paste `CAPTURE_TOKEN` (stored in
+     IndexedDB for the SW), then Add to Home screen.
 
 ### Local dev
 
@@ -285,9 +292,9 @@ No automated test suite yet (see §11). Manual verification checklist:
    Dismiss removes it.
 6. **Failure path**: capture an unreachable URL → item shows `failed` with the error;
    `/api/process` retries it.
-7. **Share targets**: Android — share from Chrome after installing PWA + saving token
-   (first-ever share may bounce once while the SW activates; re-share works). iOS —
-   share via the Shortcut.
+7. **Capture from devices**: iOS — share via the Shortcut (primary). Chrome desktop —
+   paste into the add box. Android (optional) — share from Chrome after installing PWA
+   + saving token (first-ever share may bounce once while the SW activates; re-share works).
 
 ---
 

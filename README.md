@@ -23,13 +23,15 @@ Still to come: proactive discovery of related sources, and real site auth.
 
 ## How capture works
 
-| Where | Mechanism |
-| --- | --- |
-| **Laptop** | Paste a link or note into the box on the home page (server action). |
-| **Android** | Install the PWA; it registers as a **share target**. Share → Cracks. |
-| **iOS** | An **Apple Shortcut** POSTs to `/api/capture`. See [`shortcuts/README.md`](./shortcuts/README.md). |
+Primary platforms are **iOS** and **Chrome desktop**. Android works too, but is secondary.
 
-All three land in the same pipeline: create item → fetch & extract → summarize → tag.
+| Where | Priority | Mechanism |
+| --- | --- | --- |
+| **iOS** | Primary phone | An **Apple Shortcut** POSTs to `/api/capture` from the Share Sheet. See [`shortcuts/README.md`](./shortcuts/README.md). |
+| **Chrome desktop** | Primary computer | Paste a link or note into the box on the home page (server action). |
+| **Android** | Secondary | Install the PWA; it registers as a **share target**. Share → Cracks. |
+
+All paths land in the same pipeline: create item → fetch & extract → summarize → tag.
 
 ## Local setup
 
@@ -65,7 +67,8 @@ endpoint with your bearer token to run it immediately.
 ## Environment variables
 
 See [`.env.example`](./.env.example). In short: a Postgres URL, your Claude API key,
-and a long random `CAPTURE_TOKEN` that authorizes the phone capture endpoints.
+and a long random `CAPTURE_TOKEN` that authorizes the iOS Shortcut and optional
+Android share-target capture endpoints.
 
 ## What's next
 
