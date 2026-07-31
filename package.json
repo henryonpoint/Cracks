@@ -1,8 +1,8 @@
 {
-  "name": "interest-dump",
+  "name": "cracks",
   "version": "0.1.0",
   "private": true,
-  "description": "An interest dump that reads what you save, summarizes it, and (later) guides you.",
+  "description": "Cracks — an interest dump that reads what you save, summarizes it, and guides you.",
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",

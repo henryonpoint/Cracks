@@ -1,4 +1,4 @@
-# Interest Dump
+# Cracks
 
 Save anything — articles, social posts, product links, emails, stray thoughts — and
 instead of just storing them, the app **reads each one, summarizes it, tags it**,
@@ -26,7 +26,7 @@ Still to come: proactive discovery of related sources, and real site auth.
 | Where | Mechanism |
 | --- | --- |
 | **Laptop** | Paste a link or note into the box on the home page (server action). |
-| **Android** | Install the PWA; it registers as a **share target**. Share → Interest Dump. |
+| **Android** | Install the PWA; it registers as a **share target**. Share → Cracks. |
 | **iOS** | An **Apple Shortcut** POSTs to `/api/capture`. See [`shortcuts/README.md`](./shortcuts/README.md). |
 
 All three land in the same pipeline: create item → fetch & extract → summarize → tag.

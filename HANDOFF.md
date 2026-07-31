@@ -1,4 +1,4 @@
-# Interest Dump — Handoff Document & Technical Spec
+# Cracks — Handoff Document & Technical Spec
 
 > **Status**: MVP complete and pushed to branch `claude/interest-dump-app-e3sb3n` (2 commits).
 > Typecheck + production build verified. **Not yet deployed** — needs a Postgres URL and an
@@ -13,7 +13,7 @@
 **Problem.** The owner keeps sharing articles, social stories, product links, and emails
 into a todo app just to park them. The todo app stores them but understands nothing.
 
-**What this app does instead.** It is an *interest dump*: a personal capture target that
+**What this app does instead.** Cracks is an *interest dump*: a personal capture target that
 
 1. **Reads and understands** everything saved (fetch → extract → Claude summary, key
    points, topic tags, "why you might care"),
@@ -166,7 +166,7 @@ Runs `scheduleResurfacings()` (see §7). Returns `{ok, scheduled}`.
 
 | Path | Mechanism |
 |---|---|
-| **Android** | Install the PWA (Chrome → Add to Home screen). `manifest.webmanifest` declares a `share_target` (`POST /share-target`, form-encoded). `public/sw.js` intercepts that POST, reads the capture token from IndexedDB (`interest-dump` DB, `kv` store, key `captureToken` — put there by the in-app Settings box), and forwards to `/api/capture` with the Bearer header. Redirects to `/?captured=1` or `/?needs_token=1`. |
+| **Android** | Install the PWA (Chrome → Add to Home screen). `manifest.webmanifest` declares a `share_target` (`POST /share-target`, form-encoded). `public/sw.js` intercepts that POST, reads the capture token from IndexedDB (`cracks` DB, `kv` store, key `captureToken` — put there by the in-app Settings box), and forwards to `/api/capture` with the Bearer header. Redirects to `/?captured=1` or `/?needs_token=1`. |
 | **iOS** | PWAs can't be share targets on iOS. `shortcuts/README.md` walks through a 2-minute Apple Shortcut: Share Sheet input → `Get Contents of URL` POSTing JSON `{url: input}` to `/api/capture` with the Bearer header. |
 | **Laptop** | Paste anything (URL or free text) into the add box on `/`. Server action; no token in the browser. |
 | **Fallback** | `app/share-target/route.ts` only runs if the SW isn't controlling the page yet (first share right after install) — it can't authenticate, so it redirects into the app so the SW registers; user re-shares. |

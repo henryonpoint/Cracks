@@ -1,4 +1,4 @@
-// Interest Dump — data model.
+// Cracks — data model.
 // v1 uses Item / Summary / Topic / ItemTopic. InterestProfile and Resurfacing are
 // created now but populated by later iterations, so no schema rewrite is needed then.
 

@@ -20,11 +20,11 @@ up in the Share Sheet everywhere (Safari, News, Mail, etc.).
         - `Content-Type` → `application/json`
       - **Request Body**: `JSON`
         - `url` → *Shortcut Input* (the shared item)
-   3. *(optional)* **Show Notification** → "Saved to Interest Dump"
+   3. *(optional)* **Show Notification** → "Saved to Cracks"
 
-4. Name it **"Save to Dump"**. Done.
+4. Name it **"Save to Cracks"**. Done.
 
-Now, in any app, tap **Share → Save to Dump** and the link is captured and analyzed.
+Now, in any app, tap **Share → Save to Cracks** and the link is captured and analyzed.
 
 ## Notes
 

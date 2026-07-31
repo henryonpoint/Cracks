@@ -9,7 +9,7 @@ export interface Extracted {
 }
 
 const UA =
-  "Mozilla/5.0 (compatible; InterestDumpBot/0.1; +https://github.com/henryonpoint/testproj)";
+  "Mozilla/5.0 (compatible; CracksBot/0.1; +https://github.com/henryonpoint/cracks)";
 
 // Cap how much text we send downstream to keep token cost bounded.
 const MAX_TEXT_CHARS = 40_000;

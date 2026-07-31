@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 // forwarding a shared link. Kept out of the public manifest on purpose.
 function idbSet(key: string, value: string): Promise<void> {
   return new Promise((resolve) => {
-    const open = indexedDB.open("interest-dump", 1);
+    const open = indexedDB.open("cracks", 1);
     open.onupgradeneeded = () => open.result.createObjectStore("kv");
     open.onsuccess = () => {
       const tx = open.result.transaction("kv", "readwrite");
@@ -19,7 +19,7 @@ function idbSet(key: string, value: string): Promise<void> {
 
 function idbGet(key: string): Promise<string | null> {
   return new Promise((resolve) => {
-    const open = indexedDB.open("interest-dump", 1);
+    const open = indexedDB.open("cracks", 1);
     open.onupgradeneeded = () => open.result.createObjectStore("kv");
     open.onsuccess = () => {
       const tx = open.result.transaction("kv", "readonly");

@@ -50,7 +50,7 @@ export default async function Home({
     <main>
       <header className="mb-6 flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Interest Dump</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Cracks</h1>
           <p className="mt-1 text-sm text-ink-soft dark:text-slate-400">
             Save anything — it gets read, summarized, and tagged.
           </p>

@@ -3,10 +3,10 @@ import "./globals.css";
 import { RegisterSW } from "./register-sw";
 
 export const metadata: Metadata = {
-  title: "Interest Dump",
+  title: "Cracks",
   description: "Save anything. It reads it, summarizes it, and helps you find the thread.",
   manifest: "/manifest.webmanifest",
-  appleWebApp: { capable: true, statusBarStyle: "default", title: "Interest Dump" },
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "Cracks" },
 };
 
 export const viewport: Viewport = {

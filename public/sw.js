@@ -1,4 +1,4 @@
-// Service worker for Interest Dump.
+// Service worker for Cracks.
 // Its main job is to back the Web Share Target: when the user shares a link to
 // the installed PWA (Android), the browser POSTs to /share-target. We intercept
 // that here, attach the saved capture token, and forward it to /api/capture.
@@ -9,7 +9,7 @@ self.addEventListener("activate", (event) => event.waitUntil(self.clients.claim(
 // --- tiny IndexedDB key/value (the token is stored by the in-app settings box) ---
 function idbGet(key) {
   return new Promise((resolve) => {
-    const open = indexedDB.open("interest-dump", 1);
+    const open = indexedDB.open("cracks", 1);
     open.onupgradeneeded = () => open.result.createObjectStore("kv");
     open.onsuccess = () => {
       const tx = open.result.transaction("kv", "readonly");

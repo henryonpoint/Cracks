@@ -1,6 +1,6 @@
 {
-  "name": "Interest Dump",
-  "short_name": "Dump",
+  "name": "Cracks",
+  "short_name": "Cracks",
   "description": "Save anything. It reads it, summarizes it, and helps you find the thread.",
   "start_url": "/",
   "scope": "/",

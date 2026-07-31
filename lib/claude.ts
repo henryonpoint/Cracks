@@ -52,7 +52,7 @@ const ANALYSIS_TOOL: Anthropic.Tool = {
   },
 };
 
-const SYSTEM = `You are the analysis engine for a personal "interest dump" app.
+const SYSTEM = `You are the analysis engine for Cracks, a personal "interest dump" app.
 The user saves articles, social posts, product links, emails, and notes. For each
 item you receive, produce a compact, faithful analysis and record it with the
 record_analysis tool.
