@@ -1,18 +1,26 @@
 "use server";
 
 import { after } from "next/server";
+import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db";
 import { processItem } from "@/lib/process";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
+
+const ADD_LIMIT = 30;
+const ADD_WINDOW_MS = 60_000;
 
 /**
- * Server action for the in-app "add" box (laptop capture). Runs on the server,
- * so no capture token is exposed to the browser — the token guards only the
- * external /api/capture endpoint used by the phone Shortcut / share target.
+ * Server action for the in-app "add" box (desktop capture). Runs behind the
+ * session middleware, so the caller is already authenticated; rate-limited per
+ * IP as defense-in-depth against a runaway client (each save = fetch + Claude call).
  */
 export async function addItem(formData: FormData) {
   const raw = String(formData.get("input") ?? "").trim();
   if (!raw) return;
+
+  const ip = clientIp(await headers());
+  if (!rateLimit(`add:${ip}`, ADD_LIMIT, ADD_WINDOW_MS).ok) return;
 
   const urlMatch = raw.match(/https?:\/\/[^\s]+/);
   const url = urlMatch ? urlMatch[0] : null;

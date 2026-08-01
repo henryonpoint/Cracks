@@ -3,9 +3,14 @@ import { after } from "next/server";
 import { prisma } from "@/lib/db";
 import { isAuthorized } from "@/lib/auth";
 import { processItem } from "@/lib/process";
+import { rateLimit, clientIp } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+// Cap captures per IP to blunt cost/DoS abuse (each save = a fetch + a Claude call).
+const CAPTURE_LIMIT = 30;
+const CAPTURE_WINDOW_MS = 60_000;
 
 interface CaptureBody {
   url?: string;
@@ -27,6 +32,14 @@ function extractUrl(b: CaptureBody): string | null {
 export async function POST(req: NextRequest) {
   if (!isAuthorized(req)) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
+  const limit = rateLimit(`capture:${clientIp(req.headers)}`, CAPTURE_LIMIT, CAPTURE_WINDOW_MS);
+  if (!limit.ok) {
+    return NextResponse.json(
+      { error: "rate limited" },
+      { status: 429, headers: { "Retry-After": String(limit.retryAfterSec) } },
+    );
   }
 
   const contentType = req.headers.get("content-type") ?? "";
