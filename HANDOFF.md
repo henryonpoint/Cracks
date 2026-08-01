@@ -40,14 +40,15 @@ iOS binary; on iPhone, Share Sheet capture is the Apple Shortcut.
 | Framework | Next.js 15 (App Router, RSC, server actions) | One deployable for UI + API |
 | Language | TypeScript, strict | `npx tsc --noEmit` is clean |
 | DB | PostgreSQL via Prisma | Arrays used (`String[]`), so Postgres is required — SQLite won't work |
-| AI | Claude API, `claude-opus-4-8`, official `@anthropic-ai/sdk` | Structured output via forced tool call, Zod-validated |
+| AI | Claude API, tiered models via `@anthropic-ai/sdk` | Haiku for per-item analysis, Sonnet for synthesis (`lib/models.ts`). Structured output via forced tool call, Zod-validated |
 | Content extraction | `jsdom` + `@mozilla/readability` | OG/meta fallback for non-article pages |
 | Styling | Tailwind CSS | Light + dark |
 | Hosting target | Vercel (+ Neon/any Postgres) | `vercel.json` defines 3 cron jobs |
 | PWA | `manifest.webmanifest` + hand-rolled `sw.js` | Optional Android share target only; no offline caching. iOS uses Shortcut instead. |
 
-Model choice: `claude-opus-4-8` is set in one place (`lib/claude.ts` `MODEL` const).
-Swap to `claude-sonnet-4-6` there if summarization volume makes cost a concern.
+Model choice: tiers live in `lib/models.ts` (`fast` / `reasoning` / `deep`), each
+overridable by env var (`CRACKS_MODEL_FAST`, etc.) without a deploy. Callers ask for a
+tier, never a model string. Rationale and cost math: [PLAN.md](./PLAN.md) §5.
 
 ---
 

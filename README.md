@@ -17,8 +17,9 @@ Still to come: proactive discovery of related sources, and real site auth.
 - **Next.js (App Router) + TypeScript + Tailwind** — one deployable that serves the
   installable PWA *and* the API.
 - **Postgres + Prisma** — `Item → Summary → Topic` with reserved tables for later.
-- **Claude (`claude-opus-4-8`)** via the Anthropic SDK with **structured outputs** —
-  summary, key points, topics, source type, read time.
+- **Claude** via the Anthropic SDK with **structured outputs** — summary, key points,
+  topics, source type, read time. Models are tiered (`lib/models.ts`): Haiku for the
+  per-item analysis on every save, Sonnet for the interest digest.
 - **Readability + jsdom** to extract clean article text, with an OpenGraph fallback.
 
 ## How capture works

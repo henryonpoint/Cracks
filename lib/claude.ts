@@ -1,12 +1,10 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { AnalysisSchema, type Analysis } from "./schemas";
+import { modelFor } from "./models";
 
 // Single shared client. Later features (interest profile, related-source search)
 // import this same module rather than re-instantiating.
 export const anthropic = new Anthropic();
-
-// Swap to "claude-sonnet-4-6" here if summarization volume makes cost a concern.
-const MODEL = "claude-opus-4-8";
 
 export interface SummarizeInput {
   url?: string | null;
@@ -78,8 +76,18 @@ export async function summarizeItem(input: SummarizeInput): Promise<Analysis> {
       ? parts.join("\n")
       : "No content could be fetched. Analyze from the URL/title alone, conservatively.";
 
+  try {
+    return await analyze(userContent, modelFor("fast"));
+  } catch {
+    // A malformed or missing tool call from the cheap tier costs one retry on a
+    // stronger model rather than failing the item outright.
+    return analyze(userContent, modelFor("reasoning"));
+  }
+}
+
+async function analyze(userContent: string, model: string): Promise<Analysis> {
   const response = await anthropic.messages.create({
-    model: MODEL,
+    model,
     max_tokens: 2048,
     system: SYSTEM,
     tools: [ANALYSIS_TOOL],
