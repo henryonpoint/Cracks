@@ -1,320 +1,334 @@
 # Cracks — Plan Review
 
-A review of the feature set against the original concept, a phased build order, and an
-AI model strategy that keeps per-item processing cheap enough to expand.
+Positioning, feature set, and build order, refined against what already exists in the market.
 
 **Reviewed**: 2026-08-01 · **Against**: MVP on `claude/interest-dump-app-e3sb3n`  
-**Second pass**: Grok review folded in (same day) — sequencing, taxonomy, and Phase 1
-scope tightened.
+**Revision 3**: competitive sanity check → repositioned from "interest dump" to a
+**self-model**. Supersedes the capture-and-return framing of revision 2.
 
 ---
 
-## 1. Where Cracks actually stands
+## 1. Sanity check: the idea as written is already built
 
-The MVP is one vertical slice, and it works end to end:
+Before planning features, the honest finding: **the original concept describes products that
+exist and are good.**
 
-**capture → fetch/extract → Claude analysis → topic tags → interest profile → resurfacing**
+| What the concept promised | Who already ships it |
+|---|---|
+| Save anything, AI auto-tags it, no folders, calm and private | **mymind** — this is precisely their product and philosophy |
+| Save mixed media, AI maps relationships, ask your library questions | **Fabric** ("Memory Engine") |
+| Summarize saves, resurface for retention | **Recall** |
+| Read-later + highlights + daily resurfacing | **Readwise Reader** |
+| Taste profile that recommends things you'd like | **Pickr**, **Clonaar**, **SmackLip** (vertical: food, shopping, travel) |
 
-Three screens exist (feed, item detail, insights) plus a "Worth another look" strip. The
-capture backend already accepts everything the concept needs — JSON or form posts, URL or
-free text, from iOS Shortcut, desktop add box, or Android share target.
+Two more facts worth absorbing:
 
-The concept describes a much larger product: capture **+ organize + remind + motivate**,
-with 12 screens, 10 item types, goals, projects, calendar, and a notification center. The
-gap is not polish. It is that the MVP models **content**, and the concept models
-**intent** — what the thing is *for*, when it needs attention, and which goal it serves.
+- **Pocket shut down** (July 2025, data deleted November 2025). Mozilla's reasoning is the
+  useful part: the assumption that "there is a finite amount of web material you'd get back
+  to, and time to do it" is obsolete. A pure save-for-later app is a dead category.
+- **The "second brain" backlash is mainstream in 2026.** The consistent critique: capture is
+  too cheap, so most saves are noise; retrieval never becomes a habit; systems are
+  *write-only*; users accumulate "knowledge debt" and guilt. One critic's line is the one to
+  design against — *"you haven't built a second brain; you've built a worse Google with no
+  PageRank."*
 
-That single distinction drives most of this plan.
+So the MVP as it stands — save link, summarize, tag, search — is a smaller mymind. And the
+revision-2 direction (inbox, triage, Today, due dates) was walking straight into the
+second-brain trap: another queue to feel guilty about.
 
----
-
-## 2. The core decision: what is Cracks?
-
-The concept as written is three products bolted together: a read-later app, a task/goal
-manager, and an AI coach. Each of those has strong incumbents. Trying to ship all three at
-once produces a worse version of each and a confusing inbox.
-
-**Recommended thesis:** Cracks is a **capture-and-return app**. Its promise is *"I can save
-this and trust I won't lose it."* Everything earns its place by serving capture (getting it
-in with zero friction) or return (getting it back at the right moment).
-
-Under that thesis:
-
-- **Understanding** (summary/tags/type) is core — it is what makes return possible.
-- **Return mechanics** (lifecycle, reminders, resurfacing, search, review) are core.
-- **Goals and projects** are *containers for return*, not a productivity suite. Keep them
-  light: a goal is a bucket with a name that items attach to and that the review screen
-  reasons about. No progress percentages, no OKRs, no sub-tasks. Treat goals as a
-  hypothesis to test in Phase 3b, not a commitment.
-- **Motivation/nudging** is a tone, not a feature area. The concept's own UX note is right:
-  AI should feel helpful, not bossy. That argues for one gentle surface (Today + weekly
-  review), not notification pressure.
-
-This keeps the concept's emotional promise while cutting the parts that would make Cracks a
-mediocre todo app.
-
-**Explicitly cut under this thesis** (not deferred — cut): HANDOFF §12's related-source
-discovery via web search. Proactive discovery is a different product promise ("find me new
-things") from capture-and-return ("don't lose what I saved"). Revisit only if return is
-working and the user asks for it.
+**Both directions were wrong. This revision changes the product, not the roadmap.**
 
 ---
 
-## 3. Feature set review
+## 2. The reframe: Cracks is a mirror, not a library
 
-### 3.1 Keep and strengthen (already built)
+Every competitor models **the content you saved**. The taste apps model **preferences you
+declared** in an onboarding quiz. Nobody models **the person revealed by what they actually
+save** — and then acts on it.
 
-| Feature | Why it stays | What it needs |
+> **Cracks builds a living picture of who you are from what you save, returns you to
+> yourself, and finds things you'd never have found. The library is plumbing.**
+
+The distinction that makes this different in kind, not degree:
+
+| Second brain | Cracks |
+|---|---|
+| The archive is the product | The **portrait** is the product; the archive is an implementation detail |
+| Value requires you to come back and retrieve | Value accrues **even if you never search** |
+| Organizing is your job (or the AI does your filing) | There is nothing to organize — ever |
+| Accumulates forever | **Digests**: keeps what's you, lets go of what isn't |
+| An inbox with a count | **No queue, no badge, no obligation** |
+
+This satisfies the brief precisely: *comprehensive* (any input, any domain), *simple* (one
+action: save), *not a dump* (it metabolizes), *knows who you are* (the Map), *reminds*
+(returns), *suggests what you hadn't thought of* (adjacency).
+
+### 2.1 The one rule
+
+**You save. It does everything else.** Any feature that asks the user to file, tag, triage,
+process, or maintain is rejected by default — that is the failure mode of the entire
+category.
+
+### 2.2 What we explicitly refuse to build
+
+No folders. No tag management. No unread count or inbox badge. No streaks. No graph view to
+curate. No note-taking surface. No collaboration. No "process your inbox." No personality
+*type* or shareable score.
+
+These are not deferrals. They are the positioning.
+
+---
+
+## 3. The Map (the core artifact)
+
+Today the app has `InterestProfile`: one weighted row per topic. That's a tag cloud. A
+portrait needs **facets with kinds**, because "what you're on this month" and "who you
+reliably are" are different facts:
+
+| Facet kind | Meaning | Signal |
 |---|---|---|
-| One capture endpoint, many senders | Genuinely good; already handles every concept path | Nothing structural |
-| Fetch + extract + AI analysis | The differentiator; makes saves searchable and returnable | Controlled vocabulary (§5.4); expand schema in cohorts (§4) |
-| Topic tags + interest profile | Powers resurfacing and review | Controlled vocabulary to stop tag sprawl (§5.4) |
-| Resurfacing | Delivers the "won't lose it" promise | Keep as-is for now; Today queries it alongside Item `dueAt` (§4) |
-| Insights digest | Seed of the concept's AI Review screen | Make it action-oriented; **skip when nothing new was processed** |
+| **Current** | What you're into right now | High recency-weighted volume (today's 30-day half-life) |
+| **Constant** | Who you durably are | Sustained across a long window with low volatility |
+| **Aspiration** | Who you're *trying* to be | Saved repeatedly, **opened rarely** |
+| **Drift** | Cooling off | History, nothing lately |
+| **Spark** | A one-off that fits nothing | Anomalous save; either a new direction or noise |
 
-### 3.2 Build (in priority order)
+**Aspiration is the emotionally load-bearing one and nobody surfaces it.** "You've saved 11
+things about learning Spanish and opened one" is the most honest sentence a save-app could
+say. It requires behavioral data we do not currently record (§4).
 
-1. **Item lifecycle** — `inbox → active → snoozed → done/archived`, stored as a field named
-   `lifecycle` (or `triage`), **not** `state`. `Item.status` already means the processing
-   pipeline (`pending|processing|processed|failed`); colliding English names will rot every
-   query. Highest-value missing primitive — today an item can never be "dealt with."
-2. **Failed-item UX** — when extract fails or analysis errors, the item must explain why and
-   offer retry / paste-a-body. The trust promise fails here as often as it fails from
-   missing triage; this belongs in Phase 1, not later polish.
-3. **Controlled topic vocabulary in the summarizer** — pass existing top slugs into the
-   prompt. Fixes interest-profile fragmentation *and* is the biggest quality lever for Haiku.
-4. **Due dates + snooze** — natural-language due dates at capture ("read before Friday")
-   stored as `Item.dueAt`; user snooze as `snoozedUntil`. This is what makes Today real.
-   Do **not** invent an AI `urgency` enum — attention is derived from inbox + due + snooze.
-5. **Today (as a strip/section first)** — due items, expired snoozes, plus at most a couple
-   of existing `Resurfacing` rows. Default home stays the feed until reminders have real
-   volume; don't flip navigation in the same phase Today ships.
-6. **Collections** — user-created buckets. Cheap, immediately useful, reached for before goals.
-7. **Search that earns the name** — filters (type, lifecycle, date, tag) first; semantic
-   search via pgvector later.
-8. **Goals (light, optional)** — only after collections prove useful. Named buckets with
-   intent; review screen reasons across them. Deliberately thinner than the concept.
-9. **AI Review** — weekly, action-oriented: "these 3 ideas have sat for two weeks — turn
-   one into a task?" Narrative digest already exists; missing half is one-tap actions.
+**Sparks feed discovery** (§5.3) — the unexplained save is the best lead for finding
+something you haven't thought of.
 
-### 3.3 Defer (good ideas, wrong time)
+### 3.1 Steerability — the mirror you can argue with
 
-- **Quick Save modal.** Primary capture is the iOS Shortcut, not the desktop add box. A
-  modal only helps `AddBox`. Keep one-tap everywhere; optional note/reminder as *post-save*
-  actions on the item card (and Shortcut Ask-for-Input later), not a blocking save flow.
-- **`Resurfacing` → `Surfacing` rename.** YAGNI until Today’s query over Item dues +
-  Resurfacing rows gets ugly. Add `dueAt` / `snoozedUntil` on Item first.
-- **Calendar integration.** OAuth, token refresh, provider quirks for a feature that only
-  pays off once reminders are established. Revisit after Today is in use.
-- **Voice capture.** iOS Shortcut already accepts dictated text. Native voice UI can wait.
-- **Screenshots / uploads with OCR.** High concept value and now cheap (Haiku is multimodal),
-  but blocked on blob storage. After collections, as its own phase — not bundled with goals.
-- **Browser extension.** Desktop add box covers the primary Chrome workflow. Separate
-  build/review/publish pipeline; do it when desktop capture volume justifies it.
-- **Onboarding flow.** A 12-screen concept needs onboarding; a 3-screen app needs an empty
-  state. Build when there are collections (and maybe goals) to configure.
+The Map is editable, and edits are training signal, not cosmetics:
 
-### 3.4 Cut or reshape
+- **Pin** — "this is really me" (raises floor weight)
+- **Mute** — "that's work research, not me" (excluded from Map and suggestions)
+- **Correct** — rename or merge facets (fixes the tag fragmentation that already exists)
+- **Let go** — "that was a phase" (prunes facet *and* offers to release its items)
 
-- **Related-source discovery** — cut under the thesis (§2). Not the same product.
-- **Dual taxonomy (`sourceType` + `kind`)** — reshape to **one** `kind` enum that covers
-  content shape and intent (idea, task, reminder, article, video, product, research, note,
-  event, unknown). Overlap between two enums (`article`, `product`, `note`) guarantees
-  prompt thrash and UI confusion. Migrate `sourceType` → `kind` rather than keeping both.
-- **Urgency as a field (AI or user)** — cut from v1 schema. Derive "needs attention" from
-  `lifecycle=inbox` + `dueAt` + snooze/complete. AI-inferred urgency goes stale; users
-  override by snoozing anyway.
-- **Progress tracking on goals** — reshape to "recent activity on this goal" if goals ship.
-- **Notification center as a separate screen** — fold into Today.
-- **"Motivating" nudges** — cap at the weekly review.
+This is the answer to the accuracy problem. A taste quiz is a guess you can't fix; a
+portrait you can correct earns trust from being wrong gracefully. It's also the honest answer
+to "is this creepy?" — the model is visible, editable, and deletable.
 
-### 3.5 Not a feature, but blocking
+### 3.2 The Map is the home screen
 
-**The web UI is unauthenticated.** Today that stores articles. Once due dates and lifecycle
-exist, it stores personal follow-ups. **Auth is a hard gate into Phase 2** — not a mid-phase
-nice-to-have bundled with Today. Prefer landing it at the end of Phase 1 if Phase 2 is about
-to start; at minimum it blocks any intent fields from shipping.
+The feed becomes secondary (search + browse). Inverting this is the product decision: every
+competitor opens on a list of stuff. Cracks opens on **you**.
 
 ---
 
-## 4. Data model evolution
+## 4. The data gap that blocks everything
 
-The current schema (`Item`, `Summary`, `Topic`, `ItemTopic`, `InterestProfile`, `Insight`,
-`Resurfacing`) survives. Changes are additive and smaller than the first draft:
+**Cracks currently records that you saved something, and nothing else.** No opens, no dwell,
+no dismissals, no returns. `Item.createdAt` is the only behavioral fact in the system.
+
+You cannot build Aspiration, pruning, or honest suggestions without that. And it is
+unrecoverable — every day without signal collection is a day of portrait that can never be
+reconstructed.
+
+**This makes signal capture the first thing to build, ahead of anything user-visible.**
 
 ```
-Item
-  + lifecycle     enum (inbox|active|snoozed|done|archived)   ← NOT named "state"
-  + kind          enum (idea|task|reminder|article|video|product|research|note|event|unknown)
-                  ← replaces sourceType (migrate; do not keep both)
-  + dueAt         DateTime?                                   ← NL extraction + user set
-  + snoozedUntil  DateTime?
-
-Collection      user buckets           ── M:N ── Item     (Phase 3a)
-Goal            light, named intent    ── M:N ── Item     (Phase 3b, optional)
+Signal        itemId, kind (saved|opened|dwelt|returned|dismissed|letGo), at
+Facet         replaces InterestProfile: kind, label, slug, weight, confidence,
+              evidenceCount, lastSeen, userState (none|pinned|muted|corrected)
+Return        replaces Resurfacing: kind (again|unopened|adjacent), reason,
+              facetIds, dueAt, shownAt, response (accepted|dismissed|letGo)
+Suggestion    external candidate: url, title, sourceFacetIds, reason, status
+Item          + embedding (pgvector), + lastOpenedAt, + openCount
 ```
 
-`Item.status` stays the **processing pipeline** only (`pending|processing|processed|failed`).
-`lifecycle` is triage. Never overload one field for both.
+Revision 2 said don't generalize `Resurfacing` yet (YAGNI). That was right *then*; with
+three concrete return kinds it is now earned. Do the rename with the signals migration.
 
-Notes:
-
-- **No `urgency` column.** Attention is a query, not a stored AI guess.
-- **No `Surfacing` model yet.** Today = `dueAt <= now` ∪ `snoozedUntil <= now` ∪ due
-  `Resurfacing` rows. Merge/rename only if that query becomes awkward.
-- Expand the analysis schema **one cohort at a time** behind the golden set (§5.4): first
-  topics-with-vocabulary, then `kind`, then `dueAt` extraction — not all in one bump.
-- **Switch to `prisma migrate` now.** The project is on `db push` with no migration history.
-  Adding enums and relations to a database with real saves is where that becomes painful.
+Also: **switch to `prisma migrate`** before any of this. Still on `db push` with no history.
 
 ---
 
-## 5. AI model strategy
+## 5. Returns — how value comes back without a queue
 
-### 5.1 Current state (implemented)
+All returns are **outbound, capped, explainable, and optional**. Nothing accumulates
+unopened. Never a badge.
 
-Tiering is **already shipped** in `lib/models.ts`. Callers ask for a tier, never a model
-string. Env overrides (`CRACKS_MODEL_FAST` / `_REASONING` / `_DEEP`) work without a deploy.
+### 5.1 Again (exists today, keep)
 
-| Tier | Default | Used for |
+You saved this; it's relevant now. Current topic-overlap heuristic in `lib/resurface.ts` is
+fine until embeddings land.
+
+### 5.2 Unopened — the pruning loop (novel, high value)
+
+"You saved 6 things about home espresso and opened none. Still you?"
+
+Three one-tap answers: **keep** (becomes Constant/Aspiration), **remind me properly**
+(schedules a real return), **let go** (archives the items, prunes the facet).
+
+Why this matters: every competitor is a ratchet that only accumulates. A system with a
+**metabolism** — that helps you deliberately lose things — is the structural opposite of a
+dump, and it is the direct answer to write-only knowledge debt. It also produces the
+cleanest training signal in the product.
+
+Tone rule: curiosity, never judgment. "Still you?" not "you failed to read this."
+
+### 5.3 Adjacent — suggesting what you hadn't thought of
+
+The brief's hardest ask, and the easiest thing to get wrong. Design constraints:
+
+1. **Scarce.** Roughly three per week. Never a feed. Scarcity *is* the quality bar — a feed
+   of AI suggestions is worthless and instantly ignorable.
+2. **Adjacent, not similar.** Do not return more of what you already save; that's the filter
+   bubble and it's also boring. Target: bridge two facets that rarely co-occur, or extend a
+   **Constant** into an unexplored neighbor, or chase a **Spark**.
+3. **Explainable.** Every suggestion names its evidence: "because you keep saving X *and* Y."
+4. **Accountable.** Accept/dismiss updates the Map. A vector ignored twice dies.
+5. **Real.** Sourced via Claude's web search tool, then run through the *same* pipeline as a
+   normal save, so accepting one just becomes a save.
+
+If this works, it is the feature nobody else has: recommendations from an observed self-model
+rather than a declared preference quiz or collaborative filtering over strangers.
+
+---
+
+## 6. Capture: the part that must stay trivially simple
+
+Capture is already the strongest part of the codebase — one endpoint, many senders. Two real
+gaps against the brief:
+
+**Reels and social posts will currently fail.** `lib/extract.ts` is Readability-over-HTML;
+Instagram/TikTok/Reddit are JS-rendered with thin or absent article bodies, so a reel becomes
+an item with no text and a useless summary. The brief names reels explicitly, so this needs
+its own path: oEmbed/OG metadata, caption text where available, and a multimodal read of the
+thumbnail (Haiku is multimodal — same analysis call, image input). Without this, a whole
+category of saves silently produces garbage facets.
+
+**Screenshots.** The other half of the same problem, blocked only on blob storage. High value
+for the Map because screenshots are what people save when there's no URL.
+
+Everything else stays: iOS Shortcut (primary), Chrome desktop add box (primary), Android
+share (secondary). No Quick Save modal — optional fields at save time violate §2.1.
+
+---
+
+## 7. Honest risks
+
+- **Suggestion quality is the whole product.** If Adjacent is mediocre, Cracks is a nicer
+  mymind. Mitigation: scarcity, explainability, hard kill on ignored vectors — and a
+  willingness to ship *zero* suggestions in a week rather than filler.
+- **Aspiration can read as judgment.** "You never opened this" is a sentence that can sting.
+  Mitigation: framing as curiosity, always offering "let go" as a first-class, guilt-free
+  answer.
+- **A wrong Map is worse than no Map.** Mitigation: steerability (§3.1), confidence shown,
+  never assert a facet from a single save.
+- **Sensitive inference.** The Map must never infer or store health conditions, sexuality,
+  religion, politics, immigration status, or financial distress — even when saves imply them.
+  This is an explicit prompt-level and schema-level exclusion, not a guideline. Anything
+  approaching it stays as a plain topic tag and never becomes a facet or a suggestion vector.
+- **Auth is now non-negotiable.** A portrait of a person is far more sensitive than a
+  bookmark list. The UI cannot stay open once the Map exists.
+- **Single-user scale means no collaborative filtering.** Adjacency has to come from the
+  user's own model plus the open web — which is also why it can be explainable.
+
+---
+
+## 8. AI model strategy
+
+### 8.1 Shipped
+
+Tiering lives in `lib/models.ts`; callers ask for a tier, never a model string. Env
+overrides (`CRACKS_MODEL_FAST` / `_REASONING` / `_DEEP`) work without a deploy. Haiku failure
+(no tool call or Zod-invalid) escalates once to Sonnet in `lib/claude.ts`.
+
+| Tier | Default | Job |
 |---|---|---|
-| `fast` | `claude-haiku-4-5` | Per-item analysis (`summarizeItem`) |
-| `reasoning` | `claude-sonnet-5` | Insight synthesis (`synthesizeInsight`) |
-| `deep` | `claude-opus-5` | Reserved; unused until a real user-triggered action exists |
+| `fast` | `claude-haiku-4-5` | Per-item analysis on every save; later, multimodal reads of reels/screenshots |
+| `reasoning` | `claude-sonnet-5` | Facet typing, Map narrative, suggestion curation + web search |
+| `deep` | `claude-opus-5` | Opt-in "read me back to myself" long-form portrait. Rare, user-triggered |
 
-**Escalation is also shipped:** if Haiku returns no tool call or Zod-invalid output,
-`summarizeItem` retries once on the reasoning tier (`lib/claude.ts`).
+The deep tier finally has a real job that isn't invented busywork: a periodic deep portrait
+the user asks for.
 
-Remaining AI work is not "pick a model" — it is controlled vocabulary, golden set, skip
-empty insight runs, then schema expansion in cohorts.
-
-### 5.2 Pricing reality (Claude API, as of 2026-08-01)
+### 8.2 Pricing (Claude API, 2026-08-01)
 
 | Model | Input / MTok | Output / MTok | Batch in/out | Cache hit |
 |---|---|---|---|---|
-| Claude Haiku 4.5 | $1 | $5 | $0.50 / $2.50 | $0.10 |
-| Claude Sonnet 5 | $2 (intro, then $3) | $10 (intro, then $15) | $1 / $5 | $0.20 |
-| Claude Opus 5 / 4.8 | $5 | $25 | $2.50 / $12.50 | $0.50 |
+| Haiku 4.5 | $1 | $5 | $0.50 / $2.50 | $0.10 |
+| Sonnet 5 | $2 (intro, then $3) | $10 (intro, then $15) | $1 / $5 | $0.20 |
+| Opus 5 / 4.8 | $5 | $25 | $2.50 / $12.50 | $0.50 |
 
-Claude 4.7+ use a newer tokenizer (~30% more tokens for the same text), so Haiku's advantage
-over Opus is larger than the sticker ratio. Batch is a flat 50% discount — fine for crons,
-not for capture.
+Per save (~1,600 tokens body, ~800 prompt/schema, ~350 out): Haiku ≈ **$0.004**, Sonnet
+≈ $0.009, Opus ≈ $0.021. At 150 saves/month that is well under a dollar on Haiku. Claude 4.7+
+use a newer tokenizer (~30% more tokens per text), which widens Haiku's advantage further.
 
-### 5.3 What a save actually costs
+**The expensive path is now discovery, not summarization.** Web-search-backed suggestion runs
+cost far more than a save. Hence weekly cadence, small candidate sets, and the Batch API for
+anything not latency-bound.
 
-A typical article (~1,600 tokens of body, ~800 tokens of system prompt and tool schema,
-~350 tokens out):
+### 8.3 Embeddings — an open dependency
 
-| Model | Per item | 150 saves/mo | 1,000 saves/mo |
-|---|---|---|---|
-| Haiku 4.5 | ~$0.004 | ~$0.65 | ~$4.30 |
-| Sonnet 5 (intro) | ~$0.009 | ~$1.30 | ~$8.50 |
-| Opus 4.8 | ~$0.021 | ~$3.20 | ~$21 |
+Adjacency (§5.3) and semantic search need embeddings, and **Claude has no first-party
+embeddings endpoint**; Anthropic points to third parties. Decide at build time between a
+dedicated provider (e.g. Voyage) or a local model with pgvector. Flagging it now because it
+is the one architectural dependency this plan adds outside the Anthropic SDK.
 
-**At single-user volume the monthly difference is a few dollars.** Cost alone did not justify
-the migration. The reasons that did:
+### 8.4 Quality work, in order
 
-1. **Latency at capture.** Processing runs in `after()`; the feed shows "Analyzing…" until
-   it lands. Haiku is the difference between a card that fills in while you're looking and
-   one that doesn't.
-2. **Headroom for the feature set.** Later phases add kind, due-date extraction, embeddings,
-   image analysis. On an Opus-priced path each addition is a cost decision; on Haiku it isn't.
-3. **Batch fits the crons** later, with no UX cost.
-
-### 5.4 Making the cheap default stay good
-
-**Escalation** — shipped for malformed/missing tool calls. Later: also escalate on empty or
-near-empty extracted content (metadata-only pages), where a stronger model helps more than
-on a clean article body.
-
-**Controlled vocabulary** — next AI win. Pass the user's existing top topic slugs into
-`summarizeItem` with "reuse these when they fit; invent only when nothing matches." Biggest
-quality lever for Haiku, and it fixes sprawl that already breaks `InterestProfile` /
-resurfacing (`ai` vs `artificial-intelligence` vs `machine-learning`).
-
-**Golden set** — ~30 representative saves (long article, paywalled page, product link,
-social post, plain note, terse note) with expected kind and topics. Run whenever the model
-or schema changes. Expand analysis fields only behind this set — one cohort at a time.
-
-**Do not** load kind + due-date + collection suggestions onto Haiku in one schema bump.
-
-**Deep/Opus** stays reserved and unused until there is a real user-triggered action
-("make a plan from this pile"). Do not invent automatic Opus jobs to justify the tier.
-
-### 5.5 Cheaper wins before Batch/caching
-
-1. **Skip insight synthesis when nothing new was processed** since the last `Insight` row
-   (already noted in HANDOFF §11). Removes most scheduled Sonnet runs outright.
-2. Controlled vocabulary (§5.4).
-3. **Batch API for crons** — real 50%, meaningful only once cron volume rises.
-4. **Prompt caching** — current system prompt + tool schema is under the minimum cacheable
-   prefix. Revisit once controlled vocabulary grows the prefix; then cache hits cost 10%.
-
-### 5.6 Implementation shape
-
-```
-lib/models.ts          ← shipped
-  modelFor("fast" | "reasoning" | "deep")
-  env: CRACKS_MODEL_FAST / CRACKS_MODEL_REASONING / CRACKS_MODEL_DEEP
-
-lib/claude.ts          ← shipped: fast path + escalate to reasoning
-lib/interests.ts       ← shipped: uses modelFor("reasoning")
-```
+1. **Controlled vocabulary** — pass existing top facet slugs into `summarizeItem` ("reuse
+   these when they fit"). Biggest lever for small-model quality and it fixes live tag sprawl
+   (`ai` vs `artificial-intelligence` vs `machine-learning`) that currently fragments the
+   profile.
+2. **Golden set** — ~30 representative saves (long article, paywall, product, reel, plain
+   note, terse note) with expected topics and type. Score **per field**, not pass/fail: a
+   model can be excellent at summaries and weak at inferred dates. Route only weak fields
+   upward rather than escalating an entire 40k-character article for one uncertain value.
+3. **Skip empty runs** — don't synthesize when nothing new was processed. Removes most
+   scheduled Sonnet calls outright.
+4. **Expand the analysis schema in cohorts**, each behind the golden set — never all at once.
+5. **Batch + prompt caching** later; the cached prefix is currently below the minimum
+   cacheable size, and grows once controlled vocabulary lands.
 
 ---
 
-## 6. Engineering work the roadmap depends on
+## 9. Roadmap
 
-- **Tests.** Still none. Highest value: `slugifyTopic`, capture's URL field priority, decay
-  math, resurfacing candidate selection, and `processItem` against a mocked Anthropic
-  client. The golden set in §5.4 is the other half.
-- **Migrations.** Move off `db push` before the §4 schema changes.
-- **Auth.** Hard gate into Phase 2 (§3.5).
-- **Extraction / failure UX.** JS-rendered pages, hard paywalls, and PDFs degrade to
-  metadata or nothing. Phase 1 surfaces failures and lets the user supply a body; a later
-  multimodal fallback (screenshot the page) can share the image path with screenshot capture.
-- **Queue.** `after()` plus a cron retry is fine at current volume. Revisit only if
-  reliability complaints appear.
+Ordered by what unblocks what, not by visible surface area.
 
----
+**Phase 1 — Start recording (unblocks everything).** `Signal` model; log open/dwell/dismiss/
+return everywhere; `lastOpenedAt` / `openCount` on Item; migrations; failed-item UX (explain
+and let the user retry or paste a body); controlled vocabulary; first tests. *Nothing here is
+glamorous. All of it is unrecoverable if delayed.*
 
-## 7. Phased roadmap
+**Phase 2 — The Map.** `Facet` model with kinds (Current / Constant / Aspiration / Drift /
+Spark); Map becomes the home screen; steering controls (pin, mute, correct, let go); auth.
+*Outcome: the app tells you who you are, and you can argue with it.*
 
-Each phase is shippable on its own and leaves the app coherent.
+**Phase 3 — Returns with a metabolism.** Unified `Return` model; Again + Unopened; the
+pruning loop; strict caps and explanations. *Outcome: the archive stops growing
+monotonically — the thing that makes it not a dump.*
 
-**Phase 1 — Trustworthy basics.** (Model tiering already done.) Migrations; `lifecycle`
-field; Home tabs **Inbox / All / Done|Archived** (not "Action Needed"); done/archive
-actions; failed-item UX (retry / paste body); controlled topic vocabulary in the summarizer;
-first unit tests; auth if Phase 2 is imminent. *Outcome: items can be dealt with, failures
-are explainable, tags stop sprawling, AI path is cheap enough to expand.*
+**Phase 4 — Adjacent.** Embeddings + pgvector; adjacency targeting (bridge/extend/spark);
+web-search sourcing; accept/dismiss feedback into the Map. *Outcome: the feature nobody else
+has.*
 
-**Phase 2 — Return on time.** Auth (if not already), `kind` migration (replacing
-`sourceType`), `dueAt` extraction + user snooze, Today as a **strip/section** on the feed
-(dues + expired snoozes + existing Resurfacing) — not a nav flip. No Quick Save modal; no
-`Surfacing` rename. *Outcome: Cracks brings the right thing back without becoming a todo app.*
+**Phase 5 — Every input.** Reels/social path (oEmbed + thumbnail vision), screenshots + blob
+storage, then extension/voice if capture volume justifies it. *Outcome: "save anything" is
+literally true.*
 
-**Phase 3a — Structure.** Collections + filterable search (type, lifecycle, date, tag).
-*Outcome: saves have a place to live and can be found on purpose.*
-
-**Phase 3b — Optional structure.** Screenshots/OCR (after blob storage). Light goals only
-if 3a gets real use. *Outcome: hypothesis tests, not commitments.*
-
-**Phase 4 — Return, intelligently.** Semantic search and semantic resurfacing (pgvector),
-action-oriented weekly review, skip-empty-insight then batch/caching. *Outcome: the app
-surfaces the right thing without being asked.*
-
-**Phase 5 — Reach.** Browser extension, voice capture, calendar integration, email digest.
-*Outcome: capture and return extend to where the user already is.*
+Reels arguably belong earlier if the owner saves them heavily today — the fix is contained
+(§6), and bad reel extraction quietly poisons the Map. Promote to Phase 1 if that's the real
+usage pattern.
 
 ---
 
-## 8. Open questions
+## 10. Open questions
 
-1. **Do goals earn their place?** Concept's emotional core, most likely to go stale. Phase
-   3b hypothesis — ship only if collections are actually used.
-2. **How much should the AI decide unprompted?** Auto-filing into collections is either
-   magic or infuriating. Suggest-and-confirm first; measure acceptance before automating.
-3. **When does Today become home?** Resolved for now: **feed stays default**; Today ships
-   as a strip/section. Revisit only after reminders have real volume.
-4. **Single-user forever?** Every model in §4 is user-agnostic. If sharing is ever wanted,
-   the tenancy decision gets much more expensive after Phase 3.
+1. **Is the Map interesting on week one?** It needs volume before it says anything true.
+   Cold start may need a deliberately sparse, honest empty state ("I need ~20 saves before I
+   can say anything real") rather than a fabricated portrait.
+2. **How often should the Map change?** Too volatile feels random; too stable feels dead.
+   Start with a slow-moving Constant layer and a fast Current layer, and tune from there.
+3. **Does "let go" actually delete?** It should — deletion is the point. But an undo window
+   is probably kind.
+4. **Does the feed survive at all?** If the Map plus search covers everything, the
+   chronological feed may be legacy surface worth removing rather than maintaining.

@@ -1,16 +1,21 @@
 # Cracks
 
-Save anything — articles, social posts, product links, emails, stray thoughts — and
-instead of just storing them, the app **reads each one, summarizes it, tags it**,
-builds a **living picture of what you're into**, and **bubbles up past saves** when
-they're relevant again.
+Save anything — articles, social posts, product links, emails, stray thoughts. Cracks
+reads each one and builds a **living picture of who you are**, brings things back when
+they matter, and finds things you'd never have looked for.
 
-What's built:
+It is not a second brain. There are no folders, no tags to maintain, no inbox to process,
+and no unread count. **You save; it does the rest.** See [`PLAN.md`](./PLAN.md) for the
+positioning and roadmap.
+
+What's built today:
 - **Capture + auto-read/summarize** — share something in; it gets fetched, summarized, and tagged.
 - **Interest analysis** — a recency-weighted profile of your themes plus a Claude-written digest of what you're into lately (emerging vs. gone-quiet). See `/insights`.
-- **Resurfacing & reminders** — older, on-theme saves bubble back up in a "Worth another look" strip.
+- **Resurfacing** — older, on-theme saves bubble back up in a "Worth another look" strip.
 
-Still to come: proactive discovery of related sources, and real site auth.
+Next up: behavioral signals (what you actually open), the Map that replaces the flat topic
+profile, a pruning loop so the archive stops only ever growing, and adjacency-based
+suggestions. Auth lands before the Map does.
 
 ## Stack
 
