@@ -4,6 +4,7 @@ import { AddBox } from "./add-box";
 import { ItemCard } from "./item-card";
 import { SettingsBox } from "./settings-box";
 import { Resurfaced } from "./resurfaced";
+import { logout } from "./auth-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -55,12 +56,22 @@ export default async function Home({
             Save anything — it gets read, summarized, and tagged.
           </p>
         </div>
-        <Link
-          href="/insights"
-          className="shrink-0 rounded-full bg-accent-soft px-3 py-1.5 text-xs font-medium text-accent hover:bg-accent/10 dark:bg-slate-800 dark:text-slate-200"
-        >
-          Insights →
-        </Link>
+        <div className="flex shrink-0 items-center gap-2">
+          <Link
+            href="/insights"
+            className="rounded-full bg-accent-soft px-3 py-1.5 text-xs font-medium text-accent hover:bg-accent/10 dark:bg-slate-800 dark:text-slate-200"
+          >
+            Insights →
+          </Link>
+          <form action={logout}>
+            <button
+              type="submit"
+              className="rounded-full px-3 py-1.5 text-xs font-medium text-ink-soft hover:bg-black/5 dark:text-slate-400 dark:hover:bg-white/5"
+            >
+              Sign out
+            </button>
+          </form>
+        </div>
       </header>
 
       {captured && (
