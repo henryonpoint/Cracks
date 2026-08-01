@@ -115,9 +115,14 @@ production use, switch to `prisma migrate dev` to get versioned migrations.
 
 All endpoints are Next.js route handlers, Node runtime, `force-dynamic`.
 
-### Auth (lib/auth.ts)
+### Auth
 
-- **Capture auth** (`isAuthorized`): shared secret `CAPTURE_TOKEN` via
+- **UI auth** (`middleware.ts` + `lib/session.ts`): the whole web UI is gated by a
+  single-user password (`AUTH_PASSWORD`). Sign-in sets a signed, expiring session cookie
+  (HMAC-SHA256 over the issue time, keyed by `AUTH_PASSWORD`, verified in Edge middleware).
+  Open paths: `/login`, `/api/capture`, the cron endpoints, `/share-target`, and static
+  files — everything else redirects to `/login`. Fails closed when `AUTH_PASSWORD` is unset.
+- **Capture auth** (`isAuthorized` in `lib/auth.ts`): shared secret `CAPTURE_TOKEN` via
   `Authorization: Bearer <token>` **or** `?token=<token>` query param (the query form
   exists because a Web Share Target form POST can't set headers). Fails closed if the
   env var is unset. Constant-time comparison.
@@ -308,12 +313,17 @@ No automated test suite yet (see §11). Manual verification checklist:
 
 ## 11. Known limitations & security notes
 
-- **The web UI is unauthenticated.** Only capture/cron endpoints are token-gated. Fine
-  behind an obscure URL for personal use; add real auth (e.g. NextAuth + a single
-  allowed email) before storing anything sensitive.
+- **UI auth is in place** (`AUTH_PASSWORD` + session middleware). Single password, single
+  user; upgrade to per-identity auth only if the app ever goes multi-user.
+- **SSRF guard on URL fetches** (`lib/safe-fetch.ts`): private/loopback/link-local targets
+  blocked, revalidated per redirect hop, response size capped. Residual DNS-rebinding
+  window is documented in that file and acceptable at single-user scale.
+- **Rate limiting is in-memory** (`lib/rate-limit.ts`): per-process, not fleet-wide. Good
+  enough to blunt abuse; move to a shared store if it needs to be global.
 - **No automated tests.** Highest-value additions: unit tests for `slugifyTopic`,
-  `extractUrl` field-priority, decay math, resurfacing candidate query; an integration
-  test for `processItem` with a mocked Anthropic client.
+  `extractUrl` field-priority, decay math, resurfacing candidate query, the SSRF
+  allow/block logic in `safe-fetch.ts`, and session verify; an integration test for
+  `processItem` with a mocked Anthropic client.
 - **Extraction blind spots**: JS-rendered pages, hard paywalls, and non-HTML (PDFs)
   degrade to OG-metadata-only summaries; PDFs currently yield nothing (`extract.ts`
   returns empty for non-HTML).

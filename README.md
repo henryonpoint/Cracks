@@ -34,11 +34,14 @@ All three land in the same pipeline: create item → fetch & extract → summari
 ## Local setup
 
 ```bash
-cp .env.example .env        # fill in DATABASE_URL, ANTHROPIC_API_KEY, CAPTURE_TOKEN
+cp .env.example .env        # DATABASE_URL, ANTHROPIC_API_KEY, AUTH_PASSWORD, CAPTURE_TOKEN
 npm install
 npm run db:push             # create the schema on your Postgres
 npm run dev                 # http://localhost:3000
 ```
+
+The UI is gated by `AUTH_PASSWORD` — you'll hit a sign-in page first. If it's unset,
+sign-in is disabled and the app stays locked (fail-closed).
 
 Capture a test item:
 
@@ -55,8 +58,8 @@ endpoint with your bearer token to run it immediately.
 
 ## Deploy
 
-- **App** → Vercel. Set `DATABASE_URL`, `ANTHROPIC_API_KEY`, `CAPTURE_TOKEN` (and
-  optionally `CRON_SECRET`) as env vars. `vercel.json` schedules three cron jobs:
+- **App** → Vercel. Set `DATABASE_URL`, `ANTHROPIC_API_KEY`, `AUTH_PASSWORD`,
+  `CAPTURE_TOKEN` (and optionally `CRON_SECRET`) as env vars. `vercel.json` schedules three cron jobs:
   the retry worker (`/api/process`, every 10 min), the interest digest
   (`/api/insights`, every 6 h), and resurfacing (`/api/resurface`, daily). You can
   trigger any of them by hand with `GET` + your `CAPTURE_TOKEN` as a bearer token.
@@ -65,7 +68,18 @@ endpoint with your bearer token to run it immediately.
 ## Environment variables
 
 See [`.env.example`](./.env.example). In short: a Postgres URL, your Claude API key,
-and a long random `CAPTURE_TOKEN` that authorizes the phone capture endpoints.
+an `AUTH_PASSWORD` that gates the UI, and a long random `CAPTURE_TOKEN` that authorizes
+the phone capture endpoints.
+
+## Security
+
+- **UI auth** — the whole web UI sits behind `AUTH_PASSWORD` (signed session cookie,
+  enforced in `middleware.ts`). Fails closed when unset.
+- **Capture/cron auth** — `/api/capture` needs `CAPTURE_TOKEN`; cron endpoints accept
+  `CRON_SECRET` or `CAPTURE_TOKEN`.
+- **SSRF guard** — URL fetching (`lib/safe-fetch.ts`) blocks private/loopback/link-local
+  targets and re-checks every redirect hop, and caps the response size.
+- **Rate limiting** — capture and the add box are throttled per IP (in-memory).
 
 ## What's next
 
@@ -73,5 +87,3 @@ and a long random `CAPTURE_TOKEN` that authorizes the phone capture endpoints.
 - **Semantic resurfacing** — swap topic-overlap for pgvector embeddings so bubble-ups
   catch related-but-differently-tagged saves.
 - **Weekly email digest** — the interest synthesis is built; wiring it to email is next.
-- **Site auth** — the capture *endpoints* are token-gated, but the web UI itself is
-  open. Add real auth before putting anything sensitive in it.
