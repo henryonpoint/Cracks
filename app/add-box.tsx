@@ -3,7 +3,7 @@
 import { useRef, useTransition } from "react";
 import { addItem } from "./actions";
 
-// Laptop capture: paste a link or a note, hit Save. Uses the server action.
+// Desktop capture (Chrome primary): paste a link or a note, hit Save.
 export function AddBox() {
   const formRef = useRef<HTMLFormElement>(null);
   const [pending, startTransition] = useTransition();

@@ -1,5 +1,6 @@
 import { prisma } from "./db";
 import { anthropic } from "./claude";
+import { modelFor } from "./models";
 import Anthropic from "@anthropic-ai/sdk";
 
 // Recency half-life: a save from HALF_LIFE_DAYS ago counts half as much as one today.
@@ -110,7 +111,7 @@ export async function synthesizeInsight(): Promise<void> {
     .join("\n");
 
   const response = await anthropic.messages.create({
-    model: "claude-opus-4-8",
+    model: modelFor("reasoning"),
     max_tokens: 1024,
     system:
       "You analyze a person's saved-content interests. Be specific and grounded in the data given; do not invent interests that aren't represented. Write the narrative in second person ('You've been...').",

@@ -1,35 +1,43 @@
 # Cracks
 
-Save anything — articles, social posts, product links, emails, stray thoughts — and
-instead of just storing them, the app **reads each one, summarizes it, tags it**,
-builds a **living picture of what you're into**, and **bubbles up past saves** when
-they're relevant again.
+Save anything — articles, social posts, product links, emails, stray thoughts. Cracks
+reads each one and builds a **living picture of who you are**, brings things back when
+they matter, and finds things you'd never have looked for.
 
-What's built:
+It is not a second brain. There are no folders, no tags to maintain, no inbox to process,
+and no unread count. **You save; it does the rest.** See [`PLAN.md`](./PLAN.md) for the
+positioning and roadmap.
+
+What's built today:
 - **Capture + auto-read/summarize** — share something in; it gets fetched, summarized, and tagged.
 - **Interest analysis** — a recency-weighted profile of your themes plus a Claude-written digest of what you're into lately (emerging vs. gone-quiet). See `/insights`.
-- **Resurfacing & reminders** — older, on-theme saves bubble back up in a "Worth another look" strip.
+- **Resurfacing** — older, on-theme saves bubble back up in a "Worth another look" strip.
 
-Still to come: proactive discovery of related sources, and real site auth.
+Next up: behavioral signals (what you actually open), the Map that replaces the flat topic
+profile, a pruning loop so the archive stops only ever growing, and adjacency-based
+suggestions. Auth lands before the Map does.
 
 ## Stack
 
 - **Next.js (App Router) + TypeScript + Tailwind** — one deployable that serves the
   installable PWA *and* the API.
 - **Postgres + Prisma** — `Item → Summary → Topic` with reserved tables for later.
-- **Claude (`claude-opus-4-8`)** via the Anthropic SDK with **structured outputs** —
-  summary, key points, topics, source type, read time.
+- **Claude** via the Anthropic SDK with **structured outputs** — summary, key points,
+  topics, source type, read time. Models are tiered (`lib/models.ts`): Haiku for the
+  per-item analysis on every save, Sonnet for the interest digest.
 - **Readability + jsdom** to extract clean article text, with an OpenGraph fallback.
 
 ## How capture works
 
-| Where | Mechanism |
-| --- | --- |
-| **Laptop** | Paste a link or note into the box on the home page (server action). |
-| **Android** | Install the PWA; it registers as a **share target**. Share → Cracks. |
-| **iOS** | An **Apple Shortcut** POSTs to `/api/capture`. See [`shortcuts/README.md`](./shortcuts/README.md). |
+Primary platforms are **iOS** and **Chrome desktop**. Android works too, but is secondary.
 
-All three land in the same pipeline: create item → fetch & extract → summarize → tag.
+| Where | Priority | Mechanism |
+| --- | --- | --- |
+| **iOS** | Primary phone | An **Apple Shortcut** POSTs to `/api/capture` from the Share Sheet. See [`shortcuts/README.md`](./shortcuts/README.md). |
+| **Chrome desktop** | Primary computer | Paste a link or note into the box on the home page (server action). |
+| **Android** | Secondary | Install the PWA; it registers as a **share target**. Share → Cracks. |
+
+All paths land in the same pipeline: create item → fetch & extract → summarize → tag.
 
 ## Local setup
 
@@ -65,7 +73,8 @@ endpoint with your bearer token to run it immediately.
 ## Environment variables
 
 See [`.env.example`](./.env.example). In short: a Postgres URL, your Claude API key,
-and a long random `CAPTURE_TOKEN` that authorizes the phone capture endpoints.
+and a long random `CAPTURE_TOKEN` that authorizes the iOS Shortcut and optional
+Android share-target capture endpoints.
 
 ## What's next
 

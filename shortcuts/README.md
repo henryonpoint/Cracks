@@ -1,5 +1,8 @@
 # iOS capture — Apple Shortcut
 
+**Primary phone capture path** for Cracks (iOS + Chrome desktop are the design
+priorities; Android PWA share is optional secondary support).
+
 iOS doesn't let an installed PWA register as a share target, so on iPhone/iPad you
 capture with a one-time Apple Shortcut that POSTs to `/api/capture`. It then shows
 up in the Share Sheet everywhere (Safari, News, Mail, etc.).
