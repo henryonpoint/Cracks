@@ -1,5 +1,6 @@
 import { JSDOM } from "jsdom";
 import { Readability } from "@mozilla/readability";
+import { safeFetch, readTextCapped } from "./safe-fetch";
 
 export interface Extracted {
   title: string | null;
@@ -13,17 +14,21 @@ const UA =
 
 // Cap how much text we send downstream to keep token cost bounded.
 const MAX_TEXT_CHARS = 40_000;
+// Cap how much of the response we read into memory, independent of token cost.
+const MAX_HTML_BYTES = 5_000_000;
 
 /**
  * Fetch a URL and pull out the readable article text. If there's no article
  * body (social post, product page, paywall), fall back to title + OG/meta
  * description so the summarizer still has something to work with.
+ *
+ * Uses safeFetch (SSRF guard + per-hop redirect validation) because the URL is
+ * attacker-influenced capture input.
  */
 export async function extractFromUrl(url: string): Promise<Extracted> {
-  const res = await fetch(url, {
+  const res = await safeFetch(url, {
     headers: { "user-agent": UA, accept: "text/html,application/xhtml+xml" },
-    redirect: "follow",
-    signal: AbortSignal.timeout(15_000),
+    timeoutMs: 15_000,
   });
 
   const contentType = res.headers.get("content-type") ?? "";
@@ -35,7 +40,7 @@ export async function extractFromUrl(url: string): Promise<Extracted> {
     return { title: null, text: null, excerpt: null, hasArticleBody: false };
   }
 
-  const html = await res.text();
+  const html = await readTextCapped(res, MAX_HTML_BYTES);
   const dom = new JSDOM(html, { url });
   const doc = dom.window.document;
 
