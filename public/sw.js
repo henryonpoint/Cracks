@@ -1,7 +1,8 @@
 // Service worker for Cracks.
-// Its main job is to back the Web Share Target: when the user shares a link to
-// the installed PWA (Android), the browser POSTs to /share-target. We intercept
-// that here, attach the saved capture token, and forward it to /api/capture.
+// Optional Android/Chrome path only — primary capture is iOS Shortcut + desktop
+// add box. When the installed PWA is used as a Web Share Target, the browser
+// POSTs to /share-target; we intercept, attach the saved capture token, and
+// forward to /api/capture.
 
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => event.waitUntil(self.clients.claim()));

@@ -1,8 +1,9 @@
 import { NextRequest } from "next/server";
 
 /**
- * Single-user v1 auth: a shared secret (CAPTURE_TOKEN) sent from the phone
- * Shortcut / Android share target / laptop bookmarklet.
+ * Single-user v1 auth: a shared secret (CAPTURE_TOKEN) sent from the primary
+ * iOS Shortcut, or the optional Android/Chrome Web Share Target.
+ * Desktop capture uses a server action and does not need this token in the browser.
  *
  * Accepts the token via either:
  *   - Authorization: Bearer <token>

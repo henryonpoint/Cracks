@@ -6,9 +6,10 @@ import { prisma } from "@/lib/db";
 import { processItem } from "@/lib/process";
 
 /**
- * Server action for the in-app "add" box (laptop capture). Runs on the server,
- * so no capture token is exposed to the browser — the token guards only the
- * external /api/capture endpoint used by the phone Shortcut / share target.
+ * Server action for the in-app "add" box (Chrome desktop primary capture).
+ * Runs on the server, so no capture token is exposed to the browser — the token
+ * guards only the external /api/capture endpoint used by the iOS Shortcut and
+ * optional Android share target.
  */
 export async function addItem(formData: FormData) {
   const raw = String(formData.get("input") ?? "").trim();
