@@ -1,6 +1,6 @@
 # Sayso — a personal Wispr Flow
 
-> **Working name:** Sayso (rename freely). **Status:** design + build plan, nothing built yet.
+> **Working name:** Sayso (rename freely). **Status:** Phase 0/1 Mac scaffold lives in [`sayso/`](../sayso/README.md); iPhone not started.
 > **Goal:** hold one key on the Mac, or press the Action Button on iPhone, speak, and get clean,
 > intelligently formatted text where your cursor is. Built the cheapest way that still feels great.
 

@@ -1,0 +1,41 @@
+# XcodeGen spec. Run `xcodegen generate` in this folder, then open Sayso.xcodeproj.
+name: Sayso
+options:
+  bundleIdPrefix: com.henry.sayso
+  deploymentTarget:
+    macOS: "26.0"
+  createIntermediateGroups: true
+packages:
+  DictationCore:
+    path: Packages/DictationCore
+targets:
+  SaysoMac:
+    type: application
+    platform: macOS
+    sources:
+      - path: SaysoMac
+        excludes: ["Info.plist", "Sayso.entitlements"]
+    dependencies:
+      - package: DictationCore
+    info:
+      path: SaysoMac/Info.plist
+      properties:
+        CFBundleDisplayName: Sayso
+        LSUIElement: true
+        NSMicrophoneUsageDescription: Sayso listens only while you hold the dictation key.
+        NSSpeechRecognitionUsageDescription: Sayso transcribes your speech on this Mac.
+        LSMinimumSystemVersion: "26.0"
+    entitlements:
+      path: SaysoMac/Sayso.entitlements
+      properties:
+        com.apple.security.app-sandbox: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.henry.sayso.mac
+        PRODUCT_NAME: Sayso
+        MARKETING_VERSION: 0.1.0
+        CURRENT_PROJECT_VERSION: 1
+        SWIFT_VERSION: "5.0"
+        CODE_SIGN_STYLE: Automatic
+        ENABLE_HARDENED_RUNTIME: true
+        COMBINE_HIDPI_IMAGES: true
